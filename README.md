@@ -8,4 +8,4 @@ Repo contains a source code of Information system for HR department of universit
 
 * Python 3.9.x
 * Microsoft SQL Server 
-* Python libraries: pyodbc, (TBC)
+* Python libraries: [pyodbc](https://pypi.org/project/pyodbc/)
