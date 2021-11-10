@@ -6,6 +6,6 @@ Repo contains a source code of Information system for HR department of universit
 
 ### Requirements ###
 
-* Python 3.9.x
+* Python 3.9.x +
 * Microsoft SQL Server 
 * Python libraries: [pyodbc](https://pypi.org/project/pyodbc/)
