@@ -9,7 +9,9 @@ class Person(object):
 
 
 class Student(Person):
-    def __init__(self, lastname, firstname, secondname, phone, department, birthdate, gradebook):
+    def __init__(
+        self, lastname, firstname, secondname, phone, department, birthdate, gradebook
+    ):
         super().__init__(lastname, firstname, secondname, phone, department)
         self._birth_date = birthdate
         self._gradebook_number = gradebook
@@ -20,7 +22,8 @@ class Teacher(Person):
         super().__init__(lastname, firstname, secondname, phone, department)
         self._id = id
 
-# Base class for structure classes 
+
+# Base class for structure classes
 class Structure(object):
     def __init__(self, id, fullname, shortname):
         self._id = id

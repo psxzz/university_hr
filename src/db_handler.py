@@ -1,5 +1,6 @@
 import pyodbc as db
 
+
 class database_handler(object):
     def __new__(cls):
         if not hasattr(cls, 'instance'):
@@ -7,8 +8,13 @@ class database_handler(object):
         return cls.instance
     
     def connect(self, username, password):
-        try:    
-            self.connection = db.connect(f'DSN=MSSQLServerDatabase;UID={username};PWD={password}')
+        try:
+            self.connection = db.connect(
+                f"""DSN=MSSQLServerDatabase;
+                    DATABASE=university;
+                    UID={username};
+                    PWD={password}"""
+            )
             self.cursor = self.connection.cursor()
             print(f'Connected as {username}')
         except Exception as _ex:
@@ -26,9 +32,9 @@ class database_handler(object):
     def execute_query(self, query, items=None):
         try:
             if items is None:
-                self.cursor.execute(query).fetchall()
+                self.cursor.execute(query)
             else:
-                self.cursor.execute(query, items).fetchall()
+                self.cursor.execute(query, items)
         except Exception as _ex:
             print('Execution failure', _ex, sep='\n')
         else:
