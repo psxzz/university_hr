@@ -14,7 +14,7 @@ GO
 --SELECT * from departments
 
 INSERT INTO groups(full_name, short_name, department_id, student_count) VALUES
-    ('Теория и история государства и права', 'ТИГП', 1, 3),
+    ('Теория и история государства и права', 'ТИГП', 1, 2),
     ('Уголовно-правовые дисциплины', 'УПД', 1, 3),
     ('Гражданское право', 'ГП', 1, 3),
     ('Технология машиностроения', 'ТМ', 2, 3),
@@ -67,6 +67,3 @@ INSERT INTO students(second_name, first_name, last_name, phone_number, birth_dat
     ('Коровин', 'Сергей', 'Данилович', '+79213548221', '08-08-1998', 9),
     ('Пчелкина', 'Лилия', 'Антоновна', '+79213548225', '18-04-1997', 9)
 GO
-
-SELECT * from students
-    

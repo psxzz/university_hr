@@ -12,6 +12,7 @@ GO
 -- Role for all teachers in department
 CREATE ROLE all_teachers
 GRANT SELECT ON teachers TO all_teachers
+GRANT SELECT ON departments TO all_teachers
 GO
 
 -- Role for head of departments
@@ -19,6 +20,7 @@ CREATE ROLE department_heads
 GRANT SELECT ON teachers TO department_heads
 GRANT SELECT ON groups TO department_heads
 GRANT SELECT ON students TO department_heads
+GRANT SELECT ON departments to department_heads
 GO
 
 

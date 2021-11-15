@@ -29,12 +29,17 @@ class database_handler(object):
         except Exception as _ex:
             print('Close connection failure', _ex, sep='\n')
 
-    def execute_query(self, query, items=None):
+    def execute_query(self, query, items=None, commit=False):
         try:
             if items is None:
                 self.cursor.execute(query)
             else:
-                self.cursor.execute(query, items)
+                if commit:
+                    self.cursor.execute(query, items)
+                    self.cursor.commit()
+                else:
+                    self.cursor.execute(query, items)
+
         except Exception as _ex:
             print('Execution failure', _ex, sep='\n')
         else:
