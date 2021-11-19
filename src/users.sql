@@ -3,10 +3,10 @@ GO
 
 -- Role for hr employees
 CREATE ROLE hr_employees
-GRANT SELECT, INSERT, DELETE ON groups TO hr_employees
-GRANT SELECT, INSERT, DELETE ON departments TO hr_employees
-GRANT SELECT, INSERT, DELETE ON teachers TO hr_employees
-GRANT SELECT, INSERT, DELETE ON students TO hr_employees
+GRANT SELECT, INSERT, DELETE, UPDATE ON groups TO hr_employees
+GRANT SELECT, INSERT, DELETE, UPDATE ON departments TO hr_employees
+GRANT SELECT, INSERT, DELETE, UPDATE ON teachers TO hr_employees
+GRANT SELECT, INSERT, DELETE, UPDATE ON students TO hr_employees
 GO
 
 -- Role for all teachers in department

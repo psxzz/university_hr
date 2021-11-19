@@ -9,7 +9,7 @@ class Person(object):
 
 
     def show(self):
-        print(f"ФИО: {self._first_name} {self._second_name} {self._last_name}")
+        print(f"ФИО: {self._second_name} {self._first_name} {self._last_name}")
         print(f"Телефон: {self._phone_number}")
 
 

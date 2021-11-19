@@ -7,6 +7,7 @@ class database_handler(object):
             cls.instance = super(database_handler, cls).__new__(cls)
         return cls.instance
     
+
     def connect(self, username, password):
         try:
             self.connection = db.connect(
@@ -21,6 +22,7 @@ class database_handler(object):
             print('Connection failure', _ex, sep='\n')
             return -1
 
+
     def close_connection(self):
         try:
             self.cursor.close()
@@ -28,6 +30,7 @@ class database_handler(object):
             print('Connection closed')
         except Exception as _ex:
             print('Close connection failure', _ex, sep='\n')
+
 
     def execute_query(self, query, items=None, commit=False):
         try:
