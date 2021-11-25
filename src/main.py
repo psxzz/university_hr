@@ -2,14 +2,14 @@ import sys
 import db_client as cl
 
 def print_actions(cl_actions):
-    print('Actions: \n')
+    print('Доступные действия: \n')
     for act in cl_actions:
-        print(f'{act}: {cl_actions[act].__name__}')
+        print(f'{act}: {cl_actions[act].__name__}\n')
 
 
 def print_commands():
-    print('Available commands: \n')
-    print('exec - Выполнить команду\nquit - Закончить работу')
+    print('Доступные команды: \n')
+    print('exec - Выполнить действие\nquit - Закончить работу')
 
 
 def main():
