@@ -74,9 +74,9 @@ class db_client(object):
 
         return user_actions
 
-    def __get_department_ID(self, department_name):
+    def __get_institute_ID(self, department_name):
         try:
-            select_query = """SELECT id FROM departments WHERE short_name = ?"""
+            select_query = """SELECT id FROM institutes WHERE short_name = ?"""
             items_tuple = (department_name,)
             cursor_content = self.__db_handler.execute_query(
                 select_query, items=items_tuple
@@ -85,9 +85,9 @@ class db_client(object):
         except Exception:
             return -1
 
-    def __get_group_ID(self, group_name):
+    def __get_department_ID(self, group_name):
         try:
-            select_query = """SELECT id FROM groups WHERE short_name = ? """
+            select_query = """SELECT id FROM departments WHERE short_name = ? """
             items_tuple = (group_name,)
             cursor_content = self.__db_handler.execute_query(
                 select_query, items=items_tuple
@@ -99,26 +99,26 @@ class db_client(object):
 
     def get_all_groups(self):
         print('Введите название института (краткое)')
-        dep_name = input()
-        dep_id = self.__get_department_ID(dep_name)
+        inst_name = input()
+        inst_id = self.__get_institute_ID(inst_name)
 
-        if dep_id == -1:
+        if inst_id == -1:
             print('Такого института не существует')
             return
 
         select_query = """
-        SELECT groups.id, groups.full_name, groups.short_name, groups.student_count, departments.full_name 
-        FROM groups JOIN departments
-        ON department_id = departments.id
-        WHERE department_id = ?
+        SELECT departments.id, departments.full_name, departments.short_name, departments.student_count, institutes.full_name 
+        FROM departments JOIN institutes
+        ON institute_id = institutes.id
+        WHERE institute_id = ?
         """
 
-        items_tuple = (dep_id,)
+        items_tuple = (inst_id,)
         cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
 
         group_list = []
         for row in cursor_content:
-            group_list.append(Group(*row))
+            group_list.append(Department(*row))
 
         cls()
         for group in group_list:
@@ -127,20 +127,20 @@ class db_client(object):
 
     def get_all_students(self):
         print('Введите название каферды (краткое)')
-        group_name = input()
-        group_id = self.__get_group_ID(group_name)
+        dep_name = input()
+        dep_id = self.__get_department_ID(dep_name)
 
-        if group_id == -1:
+        if dep_id == -1:
             print("Такой группы не существует")
             return
 
         select_query = """
         SELECT gradebook_number, first_name, second_name, last_name, phone_number, birth_date, full_name
-        FROM students JOIN groups 
-        ON group_id = id
-        WHERE group_id = ?"""
+        FROM students JOIN departments 
+        ON department_id = id
+        WHERE department_id = ?"""
 
-        items_tuple = (group_id,)
+        items_tuple = (dep_id,)
 
         cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
         students_list = []
@@ -155,20 +155,20 @@ class db_client(object):
 
     def get_all_teachers(self):
         print("Введите название института (краткое)")
-        dep_name = input()
-        dep_id = self.__get_department_ID(dep_name)
+        inst_name = input()
+        inst_id = self.__get_institute_ID(inst_name)
 
-        if dep_id == -1:
+        if inst_id == -1:
             print("Такого института не существует")
             return
 
         select_query = """
-        SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, departments.full_name
-        FROM teachers JOIN departments
-        ON teachers.department_id = departments.id
-        WHERE department_id = ?"""
+        SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, institutes.full_name
+        FROM teachers JOIN institutes
+        ON teachers.institute_id = institutes.id
+        WHERE institute_id = ?"""
 
-        items_tuple = (dep_id,)
+        items_tuple = (inst_id,)
         cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
         teachers_list = []
         for row in cursor_content:
@@ -184,9 +184,9 @@ class db_client(object):
         teacher_id = int(input())
 
         select_query = """
-        SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, departments.full_name
-        FROM teachers JOIN departments
-        ON teachers.department_id = departments.id
+        SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, institutes.full_name
+        FROM teachers JOIN institutes
+        ON teachers.institute_id = institutes.id
         WHERE teachers.id = ?"""
 
         items_tuple = (teacher_id,)
@@ -214,23 +214,23 @@ class db_client(object):
             ph_num = input()
 
             print("Введите название группы (краткое):")
-            g_name = input()
-            g_id = self.__get_group_ID(g_name)
+            d_name = input()
+            d_id = self.__get_department_ID(d_name)
 
-            if g_id == -1:
-                print("Такой группы не существует")
+            if d_id == -1:
+                print("Такой кафедры не существует")
                 return
 
-            student = Student(None, f_name, s_name, l_name, ph_num, dob, g_name)
+            student = Student(None, f_name, s_name, l_name, ph_num, dob, d_name)
             cls()
             print("Вы ввели следующие данные:\n")
             student.show()
 
             insert_query = """
-            INSERT INTO students(second_name, first_name, last_name, phone_number, birth_date, group_id) 
+            INSERT INTO students(second_name, first_name, last_name, phone_number, birth_date, department_id) 
             VALUES (?, ?, ?, ?, ?, ?) """
 
-            items_tuple = (s_name, f_name, l_name, ph_num, dob, g_id)
+            items_tuple = (s_name, f_name, l_name, ph_num, dob, d_id)
 
             print("\nПодтвердите действие [д/Н]")
             if input() == 'д':
@@ -257,8 +257,8 @@ class db_client(object):
 
             select_query = """
             SELECT gradebook_number, first_name, second_name, last_name, phone_number, birth_date, full_name
-            FROM students JOIN groups 
-            ON group_id = id
+            FROM students JOIN departments
+            ON department_id = id
             WHERE gradebook_number = ?"""
             items_tuple = (st_id,)
             cursor_content = self.__db_handler.execute_query(
@@ -301,24 +301,24 @@ class db_client(object):
             ph_num = input()
 
             print("Введите название института (краткое):")
-            d_name = input()
-            d_id = self.__get_department_ID(d_name)
+            i_name = input()
+            i_id = self.__get_institute_ID(i_name)
 
-            if d_id == -1:
+            if i_id == -1:
                 print("Такого института не существует")
                 return
 
-            teacher = Teacher(None, f_name, s_name, l_name, ph_num, d_name)
+            teacher = Teacher(None, f_name, s_name, l_name, ph_num, i_name)
 
             cls()
             print("Вы ввели следующие данные:\n")
             teacher.show()
 
             insert_query = """
-            INSERT INTO teachers(second_name, first_name, last_name, phone_number, department_id) 
+            INSERT INTO teachers(second_name, first_name, last_name, phone_number, institute_id) 
             VALUES (?, ?, ?, ?, ?) """
 
-            items_tuple = (s_name, f_name, l_name, ph_num, d_id)
+            items_tuple = (s_name, f_name, l_name, ph_num, i_id)
 
             print("\nПодтвердите действие [д/Н]")
             if input() == 'д':
@@ -344,9 +344,9 @@ class db_client(object):
             t_id = int(input())
 
             select_query = """
-            SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, departments.full_name
-            FROM teachers JOIN departments 
-            ON teachers.department_id = departments.id
+            SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, institutes.full_name
+            FROM teachers JOIN institutes 
+            ON teachers.institute_id = institutes.id
             WHERE teachers.id = ?"""
             items_tuple = (t_id,)
             cursor_content = self.__db_handler.execute_query(
@@ -381,22 +381,22 @@ class db_client(object):
     def edit_department_info(self):
         try:
             print("Введите название института (краткое):")
-            d_name = input()
-            d_id = self.__get_department_ID(d_name)
+            i_name = input()
+            i_id = self.__get_institute_ID(i_name)
 
-            select_query = """SELECT * FROM departments WHERE id = ?"""
-            items_tuple = (d_id,)
+            select_query = """SELECT * FROM institutes WHERE id = ?"""
+            items_tuple = (i_id,)
 
             cursor_content = self.__db_handler.execute_query(
                 select_query, items=items_tuple
             )
 
             for row in cursor_content:
-                department = Department(*row)
+                inst = Institute(*row)
 
             cls()
             print("Вы хотите изменить информацию о институте:")
-            department.show()
+            inst.show()
 
             print("Доступные действия:")
             print("1. Редактировать название института")
@@ -406,28 +406,28 @@ class db_client(object):
             cls()
 
             if action == 1:
-                department_copy = department
+                inst_copy = inst
                 print("Введите полное название института")
                 f_name = input()
-                department_copy._full_name = f_name
+                inst_copy._full_name = f_name
 
                 print("Введите краткое название института")
                 sh_name = input()
-                department_copy._short_name = sh_name
+                inst_copy._short_name = sh_name
 
                 cls()
                 print("Вы хотите внести изменения:")
-                department_copy.show()
+                inst_copy.show()
 
                 print("\nПодтвердите действие [д/Н]")
                 if input() == 'д':
                     update_query = """
-                    UPDATE departments
+                    UPDATE institutes
                     SET full_name = ?
                     SET short_name = ? 
                     WHERE id = ?"""
 
-                    items_tuple = (f_name, sh_name, d_id)
+                    items_tuple = (f_name, sh_name, i_id)
 
                     self.__db_handler.execute_query(
                         update_query, items=items_tuple, commit=True
@@ -435,12 +435,12 @@ class db_client(object):
 
             elif action == 2:
                 select_query = """
-                SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, departments.full_name
-                FROM teachers JOIN departments
-                ON teachers.department_id = departments.id
-                WHERE department_id = ?
+                SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, institutes.full_name
+                FROM teachers JOIN institutes
+                ON teachers.institute_id = institutes.id
+                WHERE institute_id = ?
                 """
-                items_tuple = (d_id, )
+                items_tuple = (i_id, )
                 cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
                 
                 teachers_available = []
@@ -459,11 +459,11 @@ class db_client(object):
                 h_id = int(input())
 
                 update_query = """
-                    UPDATE departments
+                    UPDATE institutes
                     SET head_id = ? 
                     WHERE id = ?"""
 
-                items_tuple = (h_id, d_id)
+                items_tuple = (h_id, i_id)
                 self.__db_handler.execute_query(
                     update_query, items=items_tuple, commit=True
                 )

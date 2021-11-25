@@ -6,7 +6,7 @@ USE university
 --USE master
 GO
 
-CREATE TABLE departments (
+CREATE TABLE institutes (
     id INT PRIMARY KEY IDENTITY(1, 1),
     full_name NVARCHAR(100),
     short_name NVARCHAR(10),
@@ -20,19 +20,19 @@ CREATE TABLE teachers (
     second_name NVARCHAR(15),
     last_name NVARCHAR(15),
     phone_number NVARCHAR(12),
-    department_id INT FOREIGN KEY REFERENCES departments(id)
+    institute_id INT FOREIGN KEY REFERENCES institutes(id)
 )
 GO
 
-ALTER TABLE departments ADD FOREIGN KEY (head_id) REFERENCES teachers(id)
+ALTER TABLE institutes ADD FOREIGN KEY (head_id) REFERENCES teachers(id)
 GO
 
-CREATE TABLE groups (
+CREATE TABLE departments (
     id INT PRIMARY KEY IDENTITY(1, 1),
     full_name NVARCHAR(100),
     short_name NVARCHAR(10),
     student_count INT DEFAULT 0,
-    department_id INT REFERENCES departments(id)
+    institute_id INT REFERENCES institutes(id)
 )
 GO
 
@@ -43,7 +43,7 @@ CREATE TABLE students (
     last_name NVARCHAR(15),
     phone_number NVARCHAR(12),
     birth_date DATE,
-    group_id INT REFERENCES groups(id)
+    department_id INT REFERENCES departments(id)
 )
 GO
 
@@ -52,9 +52,9 @@ CREATE TRIGGER students_IncreaseCountOfGroup
 AS BEGIN
     DECLARE @groupID INT
       
-    SELECT @groupID = group_id FROM inserted
+    SELECT @groupID = department_id FROM inserted
 
-    UPDATE groups
+    UPDATE departments
     SET student_count = student_count + 1
     WHERE id = @groupID 
 END
@@ -64,10 +64,11 @@ CREATE TRIGGER students_DecreaseCountOfGroup
     ON students AFTER DELETE
 AS BEGIN
     DECLARE @groupID INT
-    SELECT @groupID = group_id from deleted
+    SELECT @groupID = department_id from deleted
 
-    UPDATE groups
+    UPDATE departments
     SET student_count = student_count - 1
     WHERE id = @groupID
 END
 GO
+

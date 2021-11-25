@@ -1,7 +1,7 @@
 USE university
 GO
 
-INSERT INTO departments(full_name, short_name) VALUES
+INSERT INTO institutes(full_name, short_name) VALUES
     ('Юридический институт', 'ЮИ'),
     ('Институт машиностроения', 'ИМиАТ'),
     ('Институт информационных технологий', 'ИиТР') --,
@@ -11,9 +11,9 @@ INSERT INTO departments(full_name, short_name) VALUES
     -- ('Педагогический институт', 'ПИ')
 GO
 
---SELECT * from departments
+--SELECT * from institutes
 
-INSERT INTO groups(full_name, short_name, department_id, student_count) VALUES
+INSERT INTO departments(full_name, short_name, institute_id, student_count) VALUES
     ('Теория и история государства и права', 'ТИГП', 1, 2),
     ('Уголовно-правовые дисциплины', 'УПД', 1, 3),
     ('Гражданское право', 'ГП', 1, 3),
@@ -25,9 +25,9 @@ INSERT INTO groups(full_name, short_name, department_id, student_count) VALUES
     ('Информатика и защита информации', 'ИБ', 3, 3)
 GO
 
--- SELECT * from groups
+-- SELECT * from departments
 
-INSERT INTO teachers(second_name, first_name, last_name, phone_number, department_id) VALUES
+INSERT INTO teachers(second_name, first_name, last_name, phone_number, institute_id) VALUES
     ('Иванов', 'Иван', 'Иванович', '+78005553535', 1),
     ('Сидоров', 'Артем', 'Тарасович', '+79009009090', 1),
     ('Пушкин', 'Александр', 'Сергеевич', '+79051231231', 2),
@@ -38,7 +38,7 @@ GO
 
 -- SELECT * from teachers
 
-INSERT INTO students(second_name, first_name, last_name, phone_number, birth_date, group_id) VALUES 
+INSERT INTO students(second_name, first_name, last_name, phone_number, birth_date, department_id) VALUES 
     ('Украинин', 'Вячеслав', 'Валерьевич', '+79001112233', '25-09-2000', 1),
     ('Семенов', 'Андрей', 'Юрьевич', '+79123770990', '15-03-2001', 1),
     ('Покрышкин', 'Игорь', 'Ильич', '+79881345643', '03-12-1999', 1),
@@ -67,3 +67,5 @@ INSERT INTO students(second_name, first_name, last_name, phone_number, birth_dat
     ('Коровин', 'Сергей', 'Данилович', '+79213548221', '08-08-1998', 9),
     ('Пчелкина', 'Лилия', 'Антоновна', '+79213548225', '18-04-1997', 9)
 GO
+
+-- SELECT * FROM students

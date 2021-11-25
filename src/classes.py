@@ -15,9 +15,9 @@ class Person(object):
 
 class Student(Person):
     def __init__(
-        self, gradebook, firstname, secondname, lastname, phone, birthdate, group 
+        self, gradebook, firstname, secondname, lastname, phone, birthdate, department 
     ):
-        super().__init__(lastname, firstname, secondname, phone, group)
+        super().__init__(lastname, firstname, secondname, phone, department)
         self._birth_date = birthdate.strftime('%d.%m.%Y')
         self._gradebook_number = gradebook
     
@@ -30,8 +30,8 @@ class Student(Person):
 
 
 class Teacher(Person):
-    def __init__(self, id, firstname, secondname, lastname, phone, department):
-        super().__init__(lastname, firstname, secondname, phone, department)
+    def __init__(self, id, firstname, secondname, lastname, phone, institute):
+        super().__init__(lastname, firstname, secondname, phone, institute)
         self._id = id
 
 
@@ -49,7 +49,7 @@ class Structure(object):
         self._short_name = shortname
 
 
-class Department(Structure):
+class Institute(Structure):
     def __init__(self, id, fullname, shortname, head):
         super().__init__(id, fullname, shortname)
         self._department_head = head
@@ -62,11 +62,11 @@ class Department(Structure):
         print(f"ID директора института: {self._department_head}")
 
 
-class Group(Structure):
-    def __init__(self, id, fullname, shortname, students, department):
+class Department(Structure):
+    def __init__(self, id, fullname, shortname, students, institute):
         super().__init__(id, fullname, shortname)
         self._students_count = students
-        self._structure_name = department
+        self._structure_name = institute
 
     
     def show(self):
