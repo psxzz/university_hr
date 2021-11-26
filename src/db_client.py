@@ -15,6 +15,7 @@ class db_client(object):
         self.__db_handler = db.database_handler()
         self.__connection = self.__db_handler.connect(self.username, self.password)
         self.__user_roles = self.__get_user_roles()
+        self.user_actions = self.__get_user_actions()
 
     def __del__(self):
         self.__db_handler.close_connection()
@@ -45,12 +46,11 @@ class db_client(object):
         except Exception as _ex:
             print('get_user_roles failure', _ex, sep='\n')
 
-    def get_user_actions(self):
-        it = 1
+    def __get_user_actions(self):
         user_actions = dict()
         if 'all_teachers' in self.__user_roles:
-            user_actions[it] = self.get_personal_info
-            it += 1
+            function = self.get_personal_info
+            user_actions[function.__name__] = function
 
         if 'department_heads' in self.__user_roles or 'hr_employees' in self.__user_roles:
             for function in (
@@ -58,8 +58,7 @@ class db_client(object):
                 self.get_all_teachers,
                 self.get_all_students,
             ):
-                user_actions[it] = function
-                it += 1
+                user_actions[function.__name__] = function
 
         if 'hr_employees' in self.__user_roles:
             for function in (
@@ -69,9 +68,8 @@ class db_client(object):
                 self.del_teacher,
                 self.edit_department_info,
             ):
-                user_actions[it] = function
-                it += 1
-
+                user_actions[function.__name__] = function
+                
         return user_actions
 
     def __get_institute_ID(self, department_name):
