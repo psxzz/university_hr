@@ -123,7 +123,7 @@ class db_client(object):
             group.show()
             print()
 
-    def get_all_students(self):
+    def get_all_students(self,):
         print('Введите название каферды (краткое)')
         dep_name = input()
         dep_id = self.__get_department_ID(dep_name)
@@ -151,9 +151,9 @@ class db_client(object):
             student.show()
             print()
 
-    def get_all_teachers(self):
-        print("Введите название института (краткое)")
-        inst_name = input()
+    def get_all_teachers(self, inst_name):
+        # print("Введите название института (краткое)")
+        # inst_name = input()
         inst_id = self.__get_institute_ID(inst_name)
 
         if inst_id == -1:
@@ -170,12 +170,14 @@ class db_client(object):
         cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
         teachers_list = []
         for row in cursor_content:
-            teachers_list.append(Teacher(*row))
+            teachers_list.append(row)
 
-        cls()
-        for teacher in teachers_list:
-            teacher.show()
-            print()
+        return teachers_list
+        # cls()
+        # for teacher in teachers_list:
+            # teacher.show()
+            # print()
+        
 
     def get_personal_info(self):
         print("Введите свой ID:")
