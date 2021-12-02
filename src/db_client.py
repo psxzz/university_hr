@@ -1,4 +1,5 @@
 import os
+import sys
 from classes import *
 import db_handler as db
 import datetime
@@ -10,14 +11,20 @@ def cls():
 
 class db_client(object):
     def __init__(self, username, password):
-        self.username = username
-        self.password = password
-        self.__db_handler = db.database_handler()
-        self.__connection = self.__db_handler.connect(self.username, self.password)
-        self.__user_roles = self.__get_user_roles()
+        try:
+            self.username = username
+            self.password = password
+            self.__db_handler = db.database_handler()
+            self.__connection = self.__db_handler.connect(self.username, self.password)
+            self.__user_roles = self.__get_user_roles()
+        except ConnectionError:
+            raise ValueError("Невозможно подключиться к БД: Неверный логин или пароль")
 
     def __del__(self):
-        self.__db_handler.close_connection()
+        try:
+            self.__db_handler.close_connection()
+        except ConnectionError as _ex:
+            print('ОШИБКА:', _ex, sep='\n', file=sys.stderr)
 
     def __get_user_roles(self):
         try:
@@ -83,7 +90,7 @@ class db_client(object):
             )
             return list(cursor_content)[0][0]
         except Exception:
-            return -1
+            raise ValueError("Института с таким названием не существует")
 
     def __get_department_ID(self, group_name):
         try:
@@ -95,110 +102,129 @@ class db_client(object):
 
             return list(cursor_content)[0][0]
         except Exception:
-            return -1
+            raise ValueError("Кафедры с таким названием не существует")
 
     def get_all_groups(self):
-        print('Введите название института (краткое)')
-        inst_name = input()
-        inst_id = self.__get_institute_ID(inst_name)
+        try:
+            print('Введите название института (краткое)')
+            inst_name = input()
+            inst_id = self.__get_institute_ID(inst_name)
 
-        if inst_id == -1:
-            print('Такого института не существует')
+            select_query = """
+            SELECT departments.id, departments.full_name, departments.short_name, departments.student_count, institutes.full_name 
+            FROM departments JOIN institutes
+            ON institute_id = institutes.id
+            WHERE institute_id = ?
+            """
+
+            items_tuple = (inst_id,)
+            cursor_content = self.__db_handler.execute_query(
+                select_query, items=items_tuple
+            )
+
+            group_list = []
+            for row in cursor_content:
+                group_list.append(Department(*row))
+
+            cls()
+            for group in group_list:
+                group.show()
+                print()
+
+        except ValueError as _ex:
+            cls()
+            print('Ошибка:', _ex, sep=' ')
             return
-
-        select_query = """
-        SELECT departments.id, departments.full_name, departments.short_name, departments.student_count, institutes.full_name 
-        FROM departments JOIN institutes
-        ON institute_id = institutes.id
-        WHERE institute_id = ?
-        """
-
-        items_tuple = (inst_id,)
-        cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
-
-        group_list = []
-        for row in cursor_content:
-            group_list.append(Department(*row))
-
-        cls()
-        for group in group_list:
-            group.show()
-            print()
 
     def get_all_students(self):
-        print('Введите название каферды (краткое)')
-        dep_name = input()
-        dep_id = self.__get_department_ID(dep_name)
+        try:
+            print('Введите название каферды (краткое)')
+            dep_name = input()
+            dep_id = self.__get_department_ID(dep_name)
 
-        if dep_id == -1:
-            print("Такой группы не существует")
+            select_query = """
+            SELECT gradebook_number, first_name, second_name, last_name, phone_number, birth_date, full_name
+            FROM students JOIN departments 
+            ON department_id = id
+            WHERE department_id = ?"""
+
+            items_tuple = (dep_id,)
+
+            cursor_content = self.__db_handler.execute_query(
+                select_query, items=items_tuple
+            )
+            students_list = []
+
+            for row in cursor_content:
+                students_list.append(Student(*row))
+
+            cls()
+            for student in students_list:
+                student.show()
+                print()
+
+        except ValueError as _ex:
+            cls()
+            print('Ошибка:', _ex, sep=' ')
             return
-
-        select_query = """
-        SELECT gradebook_number, first_name, second_name, last_name, phone_number, birth_date, full_name
-        FROM students JOIN departments 
-        ON department_id = id
-        WHERE department_id = ?"""
-
-        items_tuple = (dep_id,)
-
-        cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
-        students_list = []
-
-        for row in cursor_content:
-            students_list.append(Student(*row))
-
-        cls()
-        for student in students_list:
-            student.show()
-            print()
 
     def get_all_teachers(self):
-        print("Введите название института (краткое)")
-        inst_name = input()
-        inst_id = self.__get_institute_ID(inst_name)
+        try:
+            print("Введите название института (краткое)")
+            inst_name = input()
+            inst_id = self.__get_institute_ID(inst_name)
 
-        if inst_id == -1:
-            print("Такого института не существует")
+            select_query = """
+            SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, institutes.full_name
+            FROM teachers JOIN institutes
+            ON teachers.institute_id = institutes.id
+            WHERE institute_id = ?"""
+
+            items_tuple = (inst_id,)
+            cursor_content = self.__db_handler.execute_query(
+                select_query, items=items_tuple
+            )
+            teachers_list = []
+            for row in cursor_content:
+                teachers_list.append(Teacher(*row))
+
+            cls()
+            for teacher in teachers_list:
+                teacher.show()
+                print()
+
+        except ValueError as _ex:
+            cls()
+            print('Ошибка:', _ex, sep=' ')
             return
 
-        select_query = """
-        SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, institutes.full_name
-        FROM teachers JOIN institutes
-        ON teachers.institute_id = institutes.id
-        WHERE institute_id = ?"""
-
-        items_tuple = (inst_id,)
-        cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
-        teachers_list = []
-        for row in cursor_content:
-            teachers_list.append(Teacher(*row))
-
-        cls()
-        for teacher in teachers_list:
-            teacher.show()
-            print()
-
     def get_personal_info(self):
-        print("Введите свой ID:")
-        teacher_id = int(input())
+        try:
+            print("Введите свой ID:")
+            teacher_id = int(input())
 
-        select_query = """
-        SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, institutes.full_name
-        FROM teachers JOIN institutes
-        ON teachers.institute_id = institutes.id
-        WHERE teachers.id = ?"""
+            select_query = """
+            SELECT teachers.id, teachers.first_name, teachers.second_name, teachers.last_name, teachers.phone_number, institutes.full_name
+            FROM teachers JOIN institutes
+            ON teachers.institute_id = institutes.id
+            WHERE teachers.id = ?"""
 
-        items_tuple = (teacher_id,)
-        cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
+            items_tuple = (teacher_id,)
+            cursor_content = self.__db_handler.execute_query(
+                select_query, items=items_tuple
+            )
 
-        teacher_info = None
-        for row in cursor_content:
-            teacher_info = Teacher(*row)
+            teacher_info = None
+            for row in cursor_content:
+                teacher_info = Teacher(*row)
 
-        cls()
-        teacher_info.show()
-        print()
+            cls()
+            teacher_info.show()
+            print()
+        except Exception:
+            cls()
+            print("Ошибка:", "Преподавателя с данным ID не существует", sep=' ')
+            return
 
     def add_student(self):
         try:
@@ -216,10 +242,6 @@ class db_client(object):
             print("Введите название группы (краткое):")
             d_name = input()
             d_id = self.__get_department_ID(d_name)
-
-            if d_id == -1:
-                print("Такой кафедры не существует")
-                return
 
             student = Student(None, f_name, s_name, l_name, ph_num, dob, d_name)
             cls()
@@ -241,6 +263,10 @@ class db_client(object):
                 print("Действие отменено.")
                 return
 
+        except ValueError as _ex:
+            cls()
+            print('Ошибка:', _ex, sep=' ')
+            return
         except Exception:
             cls()
             print("Проверьте правильность введенных данных")
@@ -281,6 +307,7 @@ class db_client(object):
             else:
                 print("Действие отменено.")
                 return
+
         except Exception:
             cls()
             print("Что-то пошло не так")
@@ -304,10 +331,6 @@ class db_client(object):
             i_name = input()
             i_id = self.__get_institute_ID(i_name)
 
-            if i_id == -1:
-                print("Такого института не существует")
-                return
-
             teacher = Teacher(None, f_name, s_name, l_name, ph_num, i_name)
 
             cls()
@@ -329,6 +352,10 @@ class db_client(object):
                 print("Действие отменено.")
                 return
 
+        except ValueError as _ex:
+            cls()
+            print('Ошибка:', _ex, sep=' ')
+            return
         except Exception:
             cls()
             print("Проверьте правильность введенных данных")
@@ -369,6 +396,7 @@ class db_client(object):
             else:
                 print("Действие отменено.")
                 return
+
         except Exception:
             cls()
             print("Что-то пошло не так")
@@ -440,9 +468,11 @@ class db_client(object):
                 ON teachers.institute_id = institutes.id
                 WHERE institute_id = ?
                 """
-                items_tuple = (i_id, )
-                cursor_content = self.__db_handler.execute_query(select_query, items=items_tuple)
-                
+                items_tuple = (i_id,)
+                cursor_content = self.__db_handler.execute_query(
+                    select_query, items=items_tuple
+                )
+
                 teachers_available = []
                 for row in cursor_content:
                     teachers_available.append(Teacher(*row))
@@ -451,11 +481,9 @@ class db_client(object):
                 print("Доступные преподаватели для текущего института:\n")
                 for teacher in teachers_available:
                     teacher.show()
-                    print()                
+                    print()
 
-                print(
-                    "Введите ID нового директора института:"
-                )
+                print("Введите ID нового директора института:")
                 h_id = int(input())
 
                 update_query = """
@@ -470,7 +498,11 @@ class db_client(object):
             else:
                 print("Некорректный ввод")
                 return
-                
+
+        except ValueError as _ex:
+            cls()
+            print('Ошибка:', _ex, sep=' ')
+            return
         except Exception:
             print("Что то не так")
         else:

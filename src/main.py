@@ -28,12 +28,11 @@ def main():
                 func = int(input())
                 client_actions[int(func)]()
             else:
-                print("Unknown command. Please retry")
+                print("Неизвестная команда")
 
-        del client
         return 0
     except Exception as _ex:
-        print(_ex)
+        print('ОШИБКА:', _ex, sep='\n', file=sys.stderr)
         return -1
 
 

@@ -18,18 +18,16 @@ class database_handler(object):
             )
             self.cursor = self.connection.cursor()
             print(f'Connected as {username}')
-        except Exception as _ex:
-            print('Connection failure', _ex, sep='\n')
-            return -1
-
+        except Exception:
+            raise ConnectionError
 
     def close_connection(self):
         try:
             self.cursor.close()
             self.connection.close()
             print('Connection closed')
-        except Exception as _ex:
-            print('Close connection failure', _ex, sep='\n')
+        except Exception:
+            raise ConnectionError("Невозможно закрыть соединение с БД")
 
 
     def execute_query(self, query, items=None, commit=False):
